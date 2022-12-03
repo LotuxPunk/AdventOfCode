@@ -1,10 +1,8 @@
 
 fun main() {
-    val calories = object {}
-        .javaClass
-        .getResource("/day_01.txt")
-        .readText()
-        .split(System.lineSeparator())
+    val calories = "day_01"
+        .getLines()
+        .asSequence()
         .map {
             if (it.isBlank()) {
                 0
