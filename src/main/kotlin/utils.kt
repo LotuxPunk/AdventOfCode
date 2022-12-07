@@ -9,4 +9,5 @@ fun String.getFileContent(): String = object {}
     .javaClass
     .getResource("/$this.txt")!!
     .readText()
+    .trimEnd()
 
