@@ -9,19 +9,32 @@ data class File(private val size: Int, val name: String): Node {
     }
 }
 
-class Directory(private val name: String, private val parent: Directory? = null, val children: MutableList<Node> = mutableListOf()): Node {
+data class Directory(private val name: String, private val parent: Directory? = null, private val root: Directory? = null, val children: MutableList<Node> = mutableListOf()): Node {
     override fun size(): Int {
         return children.sumOf { it.size() }
     }
 
     fun addChild(child: Node): Directory {
-        children.add(child)
+        if (child is Directory) {
+            children.add(
+                child.copy(
+                    parent = this,
+                    root = root()
+                )
+            )
+        }
+        else {
+            children.add(child)
+        }
         return this
     }
 
     private fun parent() = parent ?: this
 
+    private fun root() = root ?: this
+
     fun moveTo(name: String) = when(name) {
+        "/" -> root()
         ".." -> parent()
         else -> children.filterIsInstance<Directory>().firstOrNull { it.name == name } ?: throw IllegalStateException("Not found children $name")
     }
@@ -40,14 +53,13 @@ enum class Command(val prompt: Regex) {
     }
 }
 
-fun getDirs(root: Directory): List<Directory> {
-    return listOf(root) + root.children.filterIsInstance<Directory>().flatMap { getDirs(it) }
+fun getDirs(directory: Directory): List<Directory> {
+    return listOf(directory) + directory.children.filterIsInstance<Directory>().flatMap { getDirs(it) }
 }
 
 fun main() {
     "day_07"
         .getLines()
-        .drop(1) // skipping root
         .let { lines ->
             Directory("/").let { root ->
                 lines.fold(root) { currentDir, cmd ->
@@ -60,7 +72,7 @@ fun main() {
                             }
                             Command.DIR -> {
                                 command.prompt.matchEntire(cmd)!!.let {
-                                    currentDir.addChild(Directory(it.groupValues[1], currentDir))
+                                    currentDir.addChild(Directory(it.groupValues[1]))
                                 }
                             }
                             Command.FILE -> {
