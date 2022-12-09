@@ -5,8 +5,8 @@ enum class CardinalDirection {
 }
 
 class Tree(
-    private val height: Short,
-    private val lineOfSight: Map<CardinalDirection, List<Short>>
+    private val height: Byte,
+    private val lineOfSight: Map<CardinalDirection, List<Byte>>
 ) {
     fun isVisibleFromOutside(): Boolean {
         return lineOfSight.any { (_, line) ->
@@ -18,7 +18,7 @@ class Tree(
         }
     }
 
-    private tailrec fun viewCount(otherTreeHeights: List<Short>, count: Int = 0): Int = when {
+    private tailrec fun viewCount(otherTreeHeights: List<Byte>, count: Int = 0): Int = when {
         otherTreeHeights.isEmpty() -> count + 0
         otherTreeHeights.first() < height -> viewCount(otherTreeHeights.drop(1), count + 1)
         else -> {
@@ -37,7 +37,7 @@ class Tree(
 
 fun main() {
     val elapsed = measureTimeMillis {
-        "day_08".getLines().map { it.chunked(1).map { treeHeightString -> treeHeightString.toShort() } }
+        "day_08".getLines().map { it.chunked(1).map { treeHeightString -> treeHeightString.toByte() } }
             .let { forestMatrix ->
                 forestMatrix.mapIndexed { y, row ->
                     row.mapIndexed { x, height ->
