@@ -1,19 +1,50 @@
+import kotlin.math.abs
+
 data class RopeState(
-    val head: EndOfRope,
-    val tail: EndOfRope
+    val nodes: List<Knot>
 ) {
-    fun move(direction: Direction): RopeState {
-        return when (direction) {
-            Direction.LEFT -> RopeState(head.moveLeft(), tail)
-            Direction.RIGHT -> RopeState(head, tail.moveRight())
+
+    private fun isHeadTooFar(head: Knot, index: Int) =
+        abs(head.x - nodes[index].x) > 1 || abs(head.y - nodes[index].y) > 1
+
+    fun moveTo(direction: Direction): RopeState {
+        return nodes.foldIndexed(emptyList<Knot>()) { index, newNodes, node ->
+            if (index == 0) {
+                newNodes + node.moveTo(direction)
+            } else {
+                newNodes + node.moveTo(newNodes[index - 1])
+            }
+        }.let {
+            RopeState(it)
         }
     }
 }
 
-data class EndOfRope(
+data class Knot(
     val x: Int,
     val y: Int,
-)
+) {
+    fun moveTo(direction: Direction): Knot {
+        return when (direction) {
+            Direction.UP -> copy(y = y + 1)
+            Direction.DOWN -> copy(y = y - 1)
+            Direction.LEFT -> copy(x = x - 1)
+            Direction.RIGHT -> copy(x = x + 1)
+        }
+    }
+
+    fun moveTo(previousNode: Knot): Knot {
+        return when {
+            abs(x - previousNode.x) <= 1 && abs(y - previousNode.y) <= 1 -> this
+            y == previousNode.y -> copy(x = previousNode.x + (x - previousNode.x).coerceAtMost(1).coerceAtLeast(-1))
+            x == previousNode.x -> copy(y = previousNode.y + (y - previousNode.y).coerceAtMost(1).coerceAtLeast(-1))
+            else -> copy(
+                x = x + (previousNode.x - x).coerceAtLeast(-1).coerceAtMost(1),
+                y = y + (previousNode.y - y ).coerceAtLeast(-1).coerceAtMost(1)
+            )
+        }
+    }
+}
 
 enum class Direction {
     LEFT, RIGHT, UP, DOWN;
@@ -25,55 +56,36 @@ enum class Direction {
     }
 }
 
-fun isHeadTooFarFromTail(head: EndOfRope, tail: EndOfRope, sizeOfRope: Int = 1) = kotlin.math.abs(head.x - tail.x) + kotlin.math.abs(head.y - tail.y) > sizeOfRope + 1
+fun computeRopeStateHistory(numberOfKnots: Int, moves: List<Direction>): List<RopeState> {
+    return RopeState(List(numberOfKnots) { Knot(0, 0) }).let { state ->
+        moves.fold(listOf(state) to state) { (states, state), move ->
+            state.moveTo(move).let { newState ->
+                (states + newState) to newState
+            }
+        }.first
+    }
+}
 
+
+@OptIn(ExperimentalStdlibApi::class)
 fun main() {
     "day_09".getLines()
         .map { prompt ->
             Direction.fromString(prompt).let {
                 prompt to it.regex().matchEntire(prompt)!!.groupValues[1].toInt()
             }
-        }.let { moves ->
-            RopeState(
-                EndOfRope(0, 0),
-                EndOfRope(0, 0)
-            ).let { state ->
-                moves.fold(listOf(state) to state) { (states, state), (prompt, value) ->
-                    val newState = when (Move.fromString(prompt)) {
-                        Move.LEFT -> state.head.copy(x = state.head.x - value).let { newHeadPosition ->
-                            if (isHeadTooFarFromTail(newHeadPosition, state.tail)) {
-                                state.copy(head = newHeadPosition, tail = state.head)
-                            } else {
-                                state.copy(head = newHeadPosition)
-                            }
-                        }
-                        Move.RIGHT -> state.head.copy(x = state.head.x + value).let { head ->
-                            if (isHeadTooFarFromTail(head, state.tail)) {
-                                state.copy(head = head, tail = state.head)
-                            } else {
-                                state.copy(head = head)
-                            }
-                        }
-                        Move.UP -> state.head.copy(y = state.head.y + value).let { head ->
-                            if (isHeadTooFarFromTail(head, state.tail)) {
-                                state.copy(head = head, tail = state.head)
-                            } else {
-                                state.copy(head = head)
-                            }
-                        }
-                        Move.DOWN -> state.head.copy(y = state.head.y - value).let { head ->
-                            if (isHeadTooFarFromTail(head, state.tail)) {
-                                state.copy(head = head, tail = state.head)
-                            } else {
-                                state.copy(head = head)
-                            }
-                        }
-                    }
-                    states + newState to newState
-                }.first.let { history ->
-                    history.map { it.tail }.toSet().let {
-                        println("Number of unique locations: ${it.size}")
-                    }
+        }.map { (move, count) ->
+            List(count) { Direction.fromString(move) }
+        }.flatten()
+        .let { moves ->
+            computeRopeStateHistory(2, moves).let { history ->
+                history.map { it.nodes.last() }.toSet().let {
+                    println("Number of unique locations: ${it.size}")
+                }
+            }
+            computeRopeStateHistory(10, moves).let { history ->
+                history.map { it.nodes.last() }.toSet().let {
+                    println("Number of unique locations: ${it.size}")
                 }
             }
         }
