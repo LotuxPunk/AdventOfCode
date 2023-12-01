@@ -1,3 +1,7 @@
+package adventOfCode.y2022
+
+import adventOfCode.getFileContent
+
 data class Stack(val crates: MutableList<Char>) {
     fun push(c: Char) {
         crates.add(c)
@@ -25,7 +29,7 @@ data class Stack(val crates: MutableList<Char>) {
 }
 
 fun main() {
-    "day_05".getFileContent().split("\n\n").let { (cargo, moves) ->
+    "2022/day_05".getFileContent().split("\n\n").let { (cargo, moves) ->
             moves to (cargo.split(System.lineSeparator()).let {
                     it.subList(0, it.size - 1)
                 }.map { it.chunked(4) }.flatMap { strings -> strings.mapIndexed { index, s -> index to s[1] } }

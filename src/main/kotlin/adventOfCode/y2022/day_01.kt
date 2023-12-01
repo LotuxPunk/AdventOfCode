@@ -1,6 +1,9 @@
+package adventOfCode.y2022
+
+import adventOfCode.getLines
 
 fun main() {
-    val calories = "day_01"
+    val calories = "2022/day_01"
         .getLines()
         .asSequence()
         .map {

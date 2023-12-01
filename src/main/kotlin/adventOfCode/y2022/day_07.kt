@@ -1,3 +1,6 @@
+package adventOfCode.y2022
+
+import adventOfCode.getLines
 
 interface Node {
     fun size(): Int
@@ -58,7 +61,7 @@ fun getDirs(directory: Directory): List<Directory> {
 }
 
 fun main() {
-    "day_07"
+    "2022/day_07"
         .getLines()
         .let { lines ->
             Directory("/").let { root ->
