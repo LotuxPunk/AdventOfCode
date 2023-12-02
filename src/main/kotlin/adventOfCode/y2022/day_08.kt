@@ -1,3 +1,6 @@
+package adventOfCode.y2022
+
+import adventOfCode.getLines
 import kotlin.system.measureTimeMillis
 
 enum class CardinalDirection {
@@ -37,7 +40,7 @@ class Tree(
 
 fun main() {
     val elapsed = measureTimeMillis {
-        "day_08".getLines().map { it.chunked(1).map { treeHeightString -> treeHeightString.toByte() } }
+        "2022/day_08".getLines().map { it.chunked(1).map { treeHeightString -> treeHeightString.toByte() } }
             .let { forestMatrix ->
                 forestMatrix.mapIndexed { y, row ->
                     row.mapIndexed { x, height ->

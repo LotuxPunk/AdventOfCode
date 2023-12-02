@@ -1,3 +1,7 @@
+package adventOfCode.y2022
+
+import adventOfCode.getLines
+
 class Assignment(private val range: IntRange) {
     fun isCompletelyOverlapping(other: Assignment): Boolean {
         return this.range.first <= other.range.first && this.range.last >= other.range.last
@@ -14,7 +18,7 @@ class Assignment(private val range: IntRange) {
 }
 
 fun main() {
-    "day_04".getLines()
+    "2022/day_04".getLines()
         .map { it.split(",") }
         .map {
             it.map { rangeString ->

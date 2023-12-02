@@ -1,3 +1,6 @@
+package adventOfCode.y2022
+
+import adventOfCode.getLines
 import kotlin.system.measureTimeMillis
 
 enum class RockPaperScissors(val references: List<String>) {
@@ -50,7 +53,7 @@ fun Pair<RockPaperScissors, RockPaperScissors>.score(): Pair<Int, Int> {
 
 fun main() {
     val elapsed = measureTimeMillis {
-        val input = "day_02"
+        val input = "2022/day_02"
             .getLines()
             .map { it.split(" ") }.map { it[0] to it[1] }
 

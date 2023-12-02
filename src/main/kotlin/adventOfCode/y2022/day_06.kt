@@ -1,3 +1,6 @@
+package adventOfCode.y2022
+
+import adventOfCode.getFileContent
 import kotlin.system.measureTimeMillis
 
 fun streamMarker(stream: String, numberOfCharacters: Int) {
@@ -15,7 +18,7 @@ fun streamMarker(stream: String, numberOfCharacters: Int) {
 
 fun main() {
     val elapsed = measureTimeMillis {
-        "day_06".getFileContent().let {
+        "2022/day_06".getFileContent().let {
             streamMarker(it, 4)
             streamMarker(it, 14)
         }

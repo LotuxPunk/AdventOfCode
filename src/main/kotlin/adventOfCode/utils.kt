@@ -1,3 +1,5 @@
+package adventOfCode
+
 fun String.getLines(): List<String> = object {}
     .javaClass
     .getResource("/$this.txt")!!

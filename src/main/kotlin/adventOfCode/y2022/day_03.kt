@@ -1,3 +1,6 @@
+package adventOfCode.y2022
+
+import adventOfCode.getLines
 
 class Rucksack(val cargo: String) {
     private val firstCompartment = cargo.subSequence(0, cargo.length / 2)
@@ -30,7 +33,7 @@ fun Char.priority(): Int {
 }
 
 fun main() {
-    "day_03".getLines()
+    "2022/day_03".getLines()
         .map { Rucksack(it) }
         .let { rucksacks ->
             println("Sum of priorities: ${rucksacks.sumOf { it.commonItem().priority() }}")
