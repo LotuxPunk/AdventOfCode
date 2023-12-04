@@ -4,67 +4,68 @@ import adventOfCode.getLines
 
 data class Part(
     val number: Int,
-    val isPartNumber: Boolean,
-)
+    val row: Int,
+    val columnStart: Int,
+    val columnEnd: Int
+) {
+    fun isPartNumber(matrix: Array<Array<Char>>): Boolean {
+        val starRowCheck = (row - 1).coerceAtLeast(0)
+        val endRowCheck = (row + 1).coerceAtMost(matrix.lastIndex)
+        val startColumCheck = (columnStart - 1).coerceAtLeast(0)
+        val endColumnCheck = (columnEnd + 1).coerceAtMost(matrix[row].lastIndex)
+
+        for (i in starRowCheck..endRowCheck){
+            for (j in startColumCheck..endColumnCheck){
+                val char = matrix[i][j]
+                val isPartNumber = !char.isDigit() && char != '.'
+                if (isPartNumber) {
+                    return true
+                }
+            }
+        }
+        return false
+    }
+}
 
 fun main() {
     val lines = "2023/day_03".getLines()
-    val parts = mutableListOf<Part>()
+    val matrix = lines.map {
+        it.toCharArray().toTypedArray()
+    }.toTypedArray()
 
-    lines.forEachIndexed { lineIndex, line ->
-
-        var charIndex = 0
+    val parts = matrix.flatMapIndexed { rowIndex, row ->
         var number = ""
-        var isPartNumber = false
-        do {
-            val char = line[charIndex]
-            when {
-                char =='.' -> {
-                    if (number.length > 0) {
-                        parts.add(
-                            Part(
-                                number = number.toInt(),
-                                isPartNumber = isPartNumber
-                            )
-                        )
-
-                        number = ""
-                        isPartNumber = false
-                    }
-
-                    charIndex++
-                }
-                char.isDigit() -> {
-                    number = "$number$char"
-
-                    if (!isPartNumber) {
-                        for (i in -1..1) {
-                            for (j in -1..1) {
-                                val checkLineIndex = lineIndex + i
-                                val checkCharIndex = charIndex + j
-
-                                if (checkLineIndex in lines.indices){
-                                    if (checkCharIndex in line.indices) {
-                                        if (!isPartNumber){
-                                            val checkedChar = lines[checkLineIndex][checkCharIndex]
-                                            isPartNumber = checkedChar != '.' && !checkedChar.isDigit()
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-
-                    charIndex++
-                }
-                else -> {
-                    charIndex++
-                }
+        row.mapIndexedNotNull { columnIndex, char ->
+            if (char.isDigit()) {
+                number = "$number$char"
+            } else if (number.isNotBlank()) {
+                val part = Part(
+                    number = number.toInt(),
+                    row = rowIndex,
+                    columnStart = columnIndex - number.length,
+                    columnEnd = columnIndex - 1
+                )
+                number = ""
+                return@mapIndexedNotNull part
             }
-        } while (charIndex < line.length)
+
+            if (row.lastIndex == columnIndex && number.isNotBlank()) {
+                return@mapIndexedNotNull Part(
+                    number = number.toInt(),
+                    row = rowIndex,
+                    columnStart = columnIndex - number.length,
+                    columnEnd = columnIndex - 1
+                )
+            }
+            null
+        }
     }
 
-    parts.filter { it.isPartNumber }.sumOf { it.number }.let {
-        println("Sum of the parts: $it")
+    parts.filter {
+        it.isPartNumber(matrix)
+    }.sumOf {
+        it.number
+    }.let {
+        println("Sum of part number is: $it")
     }
 }
