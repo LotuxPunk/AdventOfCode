@@ -18,14 +18,23 @@ fun Map<String, Node>.turn(direction: Direction, node: Node) = when (direction) 
     Direction.RIGHT -> this[node.right]!!
 }
 
+/**
+ * Greatest common divisor
+ */
 fun gcd(a: Long, b: Long): Long {
     return if (b == 0L) a else gcd(b, a % b)
 }
 
+/**
+ * Least common multiple
+ */
 fun lcm(a: Long, b: Long): Long {
     return a * b / gcd(a, b)
 }
 
+/**
+ * Least common multiple of a list of numbers
+ */
 fun lcmOfList(numbers: List<Long>): Long {
     return numbers.reduce { acc, i -> lcm(acc, i) }
 }
