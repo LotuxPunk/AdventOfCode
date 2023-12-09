@@ -40,6 +40,21 @@ data class Scan(
     }
 }
 
+tailrec fun extrapolateNumber(values: List<Long>, extrapolatedValue: Long): Long {
+    val nextRow = values.zipWithNext().map { (v1, v2) ->
+        v2 - v1
+    }
+
+    if (nextRow.all { it == 0L }) {
+        return extrapolatedValue
+    }
+
+    return extrapolateNumber(
+        nextRow,
+        extrapolatedValue + nextRow.last()
+    )
+}
+
 fun main() {
     val scans = "2023/day_09".getLines().map { input ->
         input.split(" ").map { it.toLong() }.let {
@@ -62,6 +77,28 @@ fun main() {
     measureTimeMillis {
         scans.sumOf {
             it.extrapolateNumber(reversed = true)
+        }.let {
+            println("Part 2: $it")
+        }
+    }.let {
+        println("Time: $it ms")
+    }
+
+    // Tailrec
+
+    measureTimeMillis {
+        scans.sumOf {
+            extrapolateNumber(it.report, it.report.last())
+        }.let {
+            println("Part 1: $it")
+        }
+    }.let {
+        println("Time: $it ms")
+    }
+
+    measureTimeMillis {
+        scans.sumOf {
+            extrapolateNumber(it.report.reversed(), it.report.first())
         }.let {
             println("Part 2: $it")
         }
